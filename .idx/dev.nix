@@ -9,16 +9,16 @@
   ];
 
   # Thiết lập môi trường để tận dụng tối đa 32GB RAM
-  env = {
-    # Cho phép Java sử dụng tới 8GB RAM cho việc build (tránh nghẽn cổ chai)
-    _JAVA_OPTIONS = "-Xmx8g -XX:+UseG1GC -XX:+ParallelRefProcEnabled";
-    
-    # Ép Gradle chạy song song trên 8 nhân CPU
-    FLUTTER_EXTRA_CONF = "--multithreaded";
-    
-    # Tối ưu hóa bộ nhớ đệm cho Flutter
-    FLUTTER_ROOT = "${pkgs.flutter}";
-  };
+env = {
+  # Cho phép Flutter sử dụng nhiều nhân CPU hơn khi build
+  FLUTTER_EXTRA_CONF = "--multithreaded";
+  
+  # Tăng giới hạn quan sát file của Linux (tránh lỗi treo khi project có nhiều asset game)
+  FS_INOTIFY_MAX_USER_WATCHES = "524288";
+  
+  # Tối ưu Java cho môi trường 32GB RAM
+  _JAVA_OPTIONS = "-Xmx8g -XX:+UseG1GC";
+};
 
   idx = {
     extensions = [
