@@ -1,8 +1,12 @@
 # myapp
 
-A new Flutter project.
+A new Flutter project update .
 
 ## Getting Started
+
+ 4core
+ 8gb ram
+ 6gb dis
 
 This project is a starting point for a Flutter application.
 
