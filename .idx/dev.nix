@@ -1,36 +1,34 @@
-# To learn more about how to use Nix to configure your environment
-# see: https://firebase.google.com/docs/studio/customize-workspace
 { pkgs, ... }: {
-  # Which nixpkgs channel to use.
-  channel = "stable-24.05"; # or "unstable"
-  # Use https://search.nixos.org/packages to find packages
+  channel = "stable-24.05";
   packages = [
     pkgs.jdk21
-    pkgs.unzip
+    pkgs.flutter
+    pkgs.android-tools
   ];
-  # Sets environment variables in the workspace
-  env = {};
+
+env = {
+  # Cho phép Flutter sử dụng nhiều nhân CPU hơn khi build
+  FLUTTER_EXTRA_CONF = "--multithreaded";
+  
+  # Tăng giới hạn quan sát file của Linux (tránh lỗi treo khi project có nhiều asset game)
+  FS_INOTIFY_MAX_USER_WATCHES = "524288";
+  
+  # Tối ưu Java cho môi trường 32GB RAM
+  _JAVA_OPTIONS = "-Xmx8g -XX:+UseG1GC";
+};
   idx = {
-    # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
-    extensions = [
-      "Dart-Code.flutter"
-      "Dart-Code.dart-code"
-    ];
-    workspace = {
-      # Runs when a workspace is first created with this `dev.nix` file
-      onCreate = { };
-      # To run something each time the workspace is (re)started, use the `onStart` hook
-    };
-    # Enable previews and customize configuration
+    extensions = [ "Dart-Code.flutter" "Dart-Code.dart-code" ];
     previews = {
       enable = true;
       previews = {
+        # Ưu tiên chạy Web để tránh tốn RAM cho Emulator Android
         web = {
           command = ["flutter" "run" "--machine" "-d" "web-server" "--web-hostname" "0.0.0.0" "--web-port" "$PORT"];
           manager = "flutter";
         };
         android = {
-          command = ["flutter" "run" "--machine" "-d" "android" "-d" "localhost:5555"];
+          # Thêm --no-pub và --filesystem-cache-flush để giảm tải ổ cứng/RAM
+          command = ["flutter" "run" "--machine" "-d" "android" "--no-pub"];
           manager = "flutter";
         };
       };
