@@ -14,7 +14,7 @@
     _JAVA_OPTIONS = "-Xmx8g -XX:+UseG1GC -XX:+ParallelRefProcEnabled";
     
     # Ép Gradle chạy song song trên 8 nhân CPU
-    GRADLE_OPTS = "-Dorg.gradle.daemon=true -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4 -Dorg.gradle.jvmargs=-Xmx4g";
+    FLUTTER_EXTRA_CONF = "--multithreaded";
     
     # Tối ưu hóa bộ nhớ đệm cho Flutter
     FLUTTER_ROOT = "${pkgs.flutter}";
