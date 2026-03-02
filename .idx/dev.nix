@@ -1,34 +1,48 @@
 { pkgs, ... }: {
   channel = "stable-24.05";
+
   packages = [
     pkgs.jdk21
     pkgs.flutter
     pkgs.android-tools
+    pkgs.git
   ];
 
-env = {
-  # Cho phép Flutter sử dụng nhiều nhân CPU hơn khi build
-  FLUTTER_EXTRA_CONF = "--multithreaded";
-  
-  # Tăng giới hạn quan sát file của Linux (tránh lỗi treo khi project có nhiều asset game)
-  FS_INOTIFY_MAX_USER_WATCHES = "524288";
-  
-  # Tối ưu Java cho môi trường 32GB RAM
-  _JAVA_OPTIONS = "-Xmx8g -XX:+UseG1GC";
-};
+  # Thiết lập môi trường để tận dụng tối đa 32GB RAM
+  env = {
+    # Cho phép Java sử dụng tới 8GB RAM cho việc build (tránh nghẽn cổ chai)
+    _JAVA_OPTIONS = "-Xmx8g -XX:+UseG1GC -XX:+ParallelRefProcEnabled";
+    
+    # Ép Gradle chạy song song trên 8 nhân CPU
+    GRADLE_OPTS = "-Dorg.gradle.daemon=true -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4 -Dorg.gradle.jvmargs=-Xmx4g";
+    
+    # Tối ưu hóa bộ nhớ đệm cho Flutter
+    FLUTTER_ROOT = "${pkgs.flutter}";
+  };
+
   idx = {
-    extensions = [ "Dart-Code.flutter" "Dart-Code.dart-code" ];
+    extensions = [
+      "Dart-Code.flutter"
+      "Dart-Code.dart-code"
+      "tamasfe.even-better-toml"
+    ];
+
+    workspace = {
+      # Tự động chạy khi mở Workspace để đảm bảo mọi thứ sẵn sàng
+      onStart = {
+        # Dọn dẹp build cũ để tránh lỗi xung đột gây ANR
+        clean-folders = "rm -rf build";
+        # Tải lại các thư viện
+        pub-get = "flutter pub get";
+      };
+    };
+
     previews = {
       enable = true;
       previews = {
-        # Ưu tiên chạy Web để tránh tốn RAM cho Emulator Android
-        web = {
-          command = ["flutter" "run" "--machine" "-d" "web-server" "--web-hostname" "0.0.0.0" "--web-port" "$PORT"];
-          manager = "flutter";
-        };
         android = {
-          # Thêm --no-pub và --filesystem-cache-flush để giảm tải ổ cứng/RAM
-          command = ["flutter" "run" "--machine" "-d" "android" "--no-pub"];
+          # Sử dụng kiến trúc máy ảo mặc định nhưng bỏ qua các bước kiểm tra dư thừa
+          command = ["flutter" "run" "--machine" "-d" "android" "--no-pub" "--no-track-widget-creation"];
           manager = "flutter";
         };
       };
